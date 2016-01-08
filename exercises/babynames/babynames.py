@@ -34,14 +34,34 @@ Suggested milestones for incremental development:
  -Fix main() to use the extract_names list
 """
 
-def extract_names(filename):
+def extract_names(fn):
   """
   Given a file name for baby.html, returns a list starting with the year string
   followed by the name-rank strings in alphabetical order.
   ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
   """
-  # +++your code here+++
-  return
+  f=open(fn, 'r')
+  reYear=re.compile(r'<input type="text" name="year" id="yob" size="4" value="(\d\d\d\d)">')
+  year = reYear.findall(f.read())
+  f.close()
+
+  f=open(fn, 'r')
+  reRanking=re.compile(r'<tr align=\"right\"><td>(\d+)</td><td>(\w+?)</td><td>(\w+?)</td>')
+  rankings = re.findall(reRanking, f.read())
+  nDict={}
+  for rank, mName, fName in rankings:
+      for name in [fName, mName]:
+          currentRank=nDict.get(name)
+          if not(currentRank is None) and int(currentRank)>int(rank): 
+                  print 'Found smaller rank of %s for %s, was %s'%(rank, name, currentRank)
+                  nDict[name]=rank
+          else:
+              nDict[name]=rank
+  f.close()
+  
+  # create alphabetically sorted list with names and ranks
+  mylist=[name + ' ' + nDict[name] for name in sorted(nDict)]
+  return year+mylist    
 
 
 def main():
@@ -63,6 +83,16 @@ def main():
   # +++your code here+++
   # For each filename, get the names, then either print the text output
   # or write it to a summary file
+  for fn in args:
+    result=extract_names(fn)
+    output='\n'+'\n'.join(result)+'\n'
+    if (summary):
+        f=open(fn+'.summary', 'w')
+        f.write(output)
+        f.close
+    else:
+        print output
+
   
 if __name__ == '__main__':
   main()
