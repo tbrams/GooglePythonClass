@@ -45,7 +45,31 @@ import sys
 # and builds and returns a word/count dict for it.
 # Then print_words() and print_top() can just call the utility function.
 
-###
+TOP_WORDS=20
+
+def get_words(fn):
+    words={}
+    
+    f=open(fn, 'r')
+    for line in f:
+        new_words=line.split()
+        for word in new_words:
+            if word.lower() in words:
+                words[word.lower()]+=1
+            else:
+                words[word.lower()]=1
+    f.close()
+    return words
+
+def print_words(fn):
+    words=get_words(fn)
+    for word in sorted(words):
+        print word, words[word]
+    
+def print_top(fn):
+    words=get_words(fn)
+    for word in sorted(words, key=words.get, reverse=True)[:TOP_WORDS]:
+        print word, words[word]
 
 # This basic command line argument parsing code is provided and
 # calls the print_words() and print_top() functions which you must define.
