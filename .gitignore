@@ -26,4 +26,4 @@ Temporary	Items
 
 # My own scratchpad
 *.ipynb
-*-checkpoint.ipynb
+.ipynb_checkpoints/*-checkpoint.ipynb
