@@ -17,8 +17,38 @@ import commands
 
 # +++your code here+++
 # Write functions and modify main() to call them
+def get_special_paths(dir):
+    filenames = os.listdir(dir)
+    mylist=[]
+    reSpecial=re.compile(u'__\w+__')
+    for filename in filenames:
+        if reSpecial.search(filename) != None:
+            mylist.append(os.path.abspath(os.path.join(dir, filename)))
+    return mylist
 
+def copy_to(paths, dir):
+    if not(os.path.exists(dir)): 
+        os.mkdir(dir) 
+    for filename in paths:
+        shutil.copy(filename, dir)
+    print "Special files copied"
+    return
+    
+def zip_to(paths, zippath):
+    # Prepare paths for spaces in directory names
+    paths=['"'+path+'"' for path in paths]
+    
+    command='zip -j ' + zippath +' '+ ' '.join(paths)
+    print 'Command I am going to do: '+command
+    
+    (status, output) = commands.getstatusoutput(command)
+    if status:    ## Error case, print the command's output to stderr and exit
+        sys.stderr.write(output)
+        sys.exit(1)
 
+    # print output  
+    print "Special files zipped"    
+    return
 
 def main():
   # This basic command line argument parsing code is provided.
@@ -50,6 +80,16 @@ def main():
 
   # +++your code here+++
   # Call your functions
+  for dir in args:
+      specials=get_special_paths(dir)
+      if todir!='':
+          copy_to(specials, todir)
+
+      if tozip!='':
+          zip_to(specials, tozip)
+          
+      if (todir=='' and tozip==''):
+          for filename in specials: print filename
   
 if __name__ == "__main__":
   main()
