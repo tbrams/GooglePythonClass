@@ -25,4 +25,5 @@ Temporary	Items
 .apdisk
 
 # My own scratchpad
-Untitled.ipynb
+*.ipynb
+*-checkpoint.ipynb
