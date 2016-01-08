@@ -24,7 +24,36 @@ def read_urls(filename):
   extracting the hostname from the filename itself.
   Screens out duplicate urls and returns the urls sorted into
   increasing order."""
+  """Returns a list of the puzzle urls from the given log file,
+  extracting the hostname from the filename itself.
+  Screens out duplicate urls and returns the urls sorted into
+  increasing order."""
   # +++your code here+++
+
+  print "read_urls:"+filename
+    
+  # Use a dict for storage to avoid having to consider what to do with doubles
+  pDict={}
+  # Compile a regular expression targeting the image files we are looking for
+  rePuzzle=re.compile(u'GET (\S+/puzzle/\S+) HTTP/')
+
+  # Open the specified logfile and store entry in the dictionary using only the filename as key 
+  f=open(filename, 'r')
+  for entry in  re.findall(rePuzzle, f.read()):
+      shortname=os.path.basename(entry) 
+      pDict[shortname]=entry
+  f.close()
+  
+  print "filename is %s"%filename
+  if not(filename.find('place_code.google.com')):
+      # Create a list with all the sorted urls based on the last word for the return value
+      # We do that by stepping back over ".jpg" and then 4 more, that we then select for sorting.
+#      return [pDict[shortname] for shortname in sorted(pDict.keys(), key=lambda(x): x[-13:-4])]
+      print 'try sort again..and'
+      return [pDict[x] for x in sorted(pDict.keys(), key=lambda(x):x[-8:-4])]
+  else:
+      # Create a list with all the sorted urls for the return value
+      return [pDict[filename] for filename in sorted(pDict.keys())]
   
 
 def download_images(img_urls, dest_dir):
@@ -35,7 +64,28 @@ def download_images(img_urls, dest_dir):
   with an img tag to show each local image file.
   Creates the directory if necessary.
   """
-  # +++your code here+++
+  
+  # prepare output directory - if it is not there already, create it
+  if not(os.path.exists(dest_dir)):
+      os.mkdir(dest_dir)
+
+  i=0
+  imgstr=''
+  for slice in img_urls:
+      # use a simple naming scheme for new image files and make sure they end up in the given directory
+      outfile='img'+str(i)+'.png'
+      imgstr+='<img src="'+outfile+'">'
+      outfile=os.path.join(dest_dir, outfile)
+      print "Fetching "+outfile+' '+ os.path.basename(slice) 
+      urllib.urlretrieve('http://code.google.com/'+slice, outfile)
+      i+=1
+  print "All image strips downloaded"
+
+  f=open(os.path.join(dest_dir, 'index.html'), 'w')
+  f.write('<html><body>')
+  f.write(imgstr)
+  f.write('</body></html>')
+  f.close()
   
 
 def main():
